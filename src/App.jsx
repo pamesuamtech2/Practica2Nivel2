@@ -4,6 +4,31 @@ const [transactions, setTransactions]=useState([])
 const [text, setText] = useState ("")
 const [amount, setAmount] = useState ("")
 console.log("Estado actual -> Concepto:", text, "| Monto:", amount);
+const addTransaction = (e) => {
+  e.preventDefault();
+  if (text.trim() === "" || amount === "") return;
+  const newTransaction = {
+      id: Date.now(),        
+      text: text,            
+      amount: Number(amount) 
+    };
+    setTransactions([...transactions, newTransaction]);
+    setText("");
+    setAmount("");
+  };
+  const income = transactions
+    .filter(item => item.amount > 0)
+    .reduce((acumulador, item) => acumulador + item.amount, 0);
+
+  const expense = transactions
+    .filter(item => item.amount < 0)
+    .reduce((acumulador, item) => acumulador + item.amount, 0);
+
+  const total = income + expense;
+  const deleteTransaction = (idParaBorrar) => {
+    const listaActualizada = transactions.filter(item => item.id !== idParaBorrar);
+    setTransactions(listaActualizada);
+  };
   
   return (
     <>
@@ -24,16 +49,16 @@ console.log("Estado actual -> Concepto:", text, "| Monto:", amount);
 {/* Balance Hero */}
 <div className="px-8 py-10 bg-slate-50/50 dark:bg-primary/5 flex flex-col items-center justify-center text-center">
 <p className="text-sm font-medium uppercase tracking-widest text-slate-500 dark:text-primary/70 mb-2">Total Balance</p>
-<h2 className="text-6xl font-black text-slate-900 dark:text-white tracking-tighter">$0.00</h2>
+<h2 className="text-6xl font-black text-slate-900 dark:text-white tracking-tighter">${total.toFixed(2)}</h2>
 <div className="mt-6 flex gap-8">
 <div className="text-center">
 <p className="text-xs text-slate-400 dark:text-slate-500 uppercase font-bold">Income</p>
-<p className="text-emerald-500 font-bold text-lg">+$0.00</p>
+<p className="text-emerald-500 font-bold text-lg">+${income.toFixed(2)}</p>
 </div>
 <div className="w-px bg-slate-200 dark:bg-primary/10"></div>
 <div className="text-center">
 <p className="text-xs text-slate-400 dark:text-slate-500 uppercase font-bold">Expense</p>
-<p className="text-rose-500 font-bold text-lg">-$0.00</p>
+<p className="text-rose-500 font-bold text-lg">-${Math.abs(expense).toFixed(2)}</p>
 </div>
 </div>
 </div>
@@ -44,7 +69,7 @@ console.log("Estado actual -> Concepto:", text, "| Monto:", amount);
 <h3 className="text-lg font-bold mb-6 text-slate-800 dark:text-white flex items-center gap-2">
 <span className="material-symbols-outlined text-primary text-xl bg-red-700 rounded-2xl p-2 pt-1 dark:bg-amber-600 motion-safe:">➕</span>
                     Nueva Transacción</h3>
-<form className="space-y-5" onSubmit={(e) => e.preventDefault()}>
+<form className="space-y-5" onSubmit={addTransaction}>
 <div className="flex flex-col gap-1.5">
 <label className="text-sm font-semibold text-slate-600 dark:text-slate-400 ml-1">Concepto</label>
 <input className="w-full h-12 px-4 rounded-lg border border-slate-200 dark:border-primary/20 bg-white dark:bg-input-dark text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-600 focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none" 
@@ -82,31 +107,21 @@ onChange={(e) => setAmount(e.target.value)}/>
 </h3>
 <div className="space-y-3">
 {/* Item 1: Income */}
-<div className="group relative flex items-center justify-between p-4 bg-slate-50 dark:bg-primary/5 rounded-lg border-l-4 border-emerald-500 hover:bg-slate-100 dark:hover:bg-primary/10 transition-all">
-<div className="flex flex-col">
-<span className="text-sm font-bold text-slate-800 dark:text-slate-200">Pago Nómina</span>
+{transactions.map((transaccion) => (
+<div key={transaccion.id} className={`group relative flex items-center justify-between p-4 bg-slate-50 dark:bg-primary/5 rounded-lg border-l-4 hover:bg-slate-100 dark:hover:bg-primary/10 transition-all ${transaccion.amount >= 0 ? 'border-emerald-500' : 'border-rose-500'}`}><div className="flex flex-col">
+<span className="text-sm font-bold text-slate-800 dark:text-slate-200">{transaccion.text}</span>
 <span className="text-[10px] text-slate-400 uppercase tracking-wider">Hoy, 09:00 AM</span>
 </div>
 <div className="flex items-center gap-4">
-<span className="text-emerald-500 font-black tracking-tight">+$500.00</span>
-<button className="w-6 h-6 flex items-center justify-center rounded-full bg-slate-200 dark:bg-slate-700 text-slate-500 hover:bg-rose-500 hover:text-white transition-colors opacity-0 group-hover:opacity-100">
+<span className={`font-black tracking-tight ${transaccion.amount >= 0 ? 'text-emerald-500' : 'text-rose-500'}`}>
+  ${transaccion.amount}
+</span><button onClick={() => deleteTransaction(transaccion.id)} 
+className="w-6 h-6 flex items-center justify-center rounded-full bg-slate-200 dark:bg-slate-700 text-slate-500 hover:bg-rose-500 hover:text-white transition-colors opacity-0 group-hover:opacity-100">
 <span className="material-symbols-outlined text-sm">close</span>
 </button>
 </div>
 </div>
-{/* Item 2: Expense */}
-<div className="group relative flex items-center justify-between p-4 bg-slate-50 dark:bg-primary/5 rounded-lg border-l-4 border-rose-500 hover:bg-slate-100 dark:hover:bg-primary/10 transition-all">
-<div className="flex flex-col">
-<span className="text-sm font-bold text-slate-800 dark:text-slate-200">Compra Pizza</span>
-<span className="text-[10px] text-slate-400 uppercase tracking-wider">Ayer, 08:30 PM</span>
-</div>
-<div className="flex items-center gap-4">
-<span className="text-rose-500 font-black tracking-tight">-$20.00</span>
-<button className="w-6 h-6 flex items-center justify-center rounded-full bg-slate-200 dark:bg-slate-700 text-slate-500 hover:bg-rose-500 hover:text-white transition-colors opacity-0 group-hover:opacity-100">
-<span className="material-symbols-outlined text-sm">close</span>
-</button>
-</div>
-</div>
+))}
 {/* Empty State Placeholder (Visual hint) */}
 <div className="border-2 border-dashed border-slate-100 dark:border-primary/5 rounded-lg p-8 flex flex-col items-center justify-center text-slate-300 dark:text-slate-700">
 <span className="material-symbols-outlined text-3xl mb-1">🧾</span>
