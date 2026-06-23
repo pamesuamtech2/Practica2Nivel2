@@ -1,0 +1,14 @@
+@import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* profe esta parte (@theme) sí me la dió la IA porque no lograba que el darkmode 
+funcionara con los nombres que le puso originalmente y me dijo (la IA) que así 
+me ahorraba cambiar nombre por nombre*/
+@theme {
+  --color-primary: #ec5b13;
+  --color-background-light: #f8f6f6;
+  --color-background-dark: #1a120e;
+  --color-card-dark: #2a1d17;
+  --color-input-dark: #36261e;
+  --font-display: "Public Sans", sans-serif;
+}
